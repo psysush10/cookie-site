@@ -8,8 +8,9 @@
   <!-- Dynamic JWT Authentication Script -->
   <script>
     
-    // Define zE queue wrapper if not already loaded
-    window.zESettings = window.zESettings || {};
+    window.zE = window.zE || function() {
+    (window.zE.q = window.zE.q || []).push(arguments);
+  };
     
     zE('messenger', 'loginUser', function(callback) {
       // Fetch fresh JWT from your Vercel Serverless API
