@@ -61,6 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
             callback(activeJwtToken);
           });
 
+          // FORCE Zendesk to execute the login session upgrade immediately
+          // Passing a function to loginUser initiates authentication right away
+          zE('messenger', 'loginUser', (callback) => {
+            callback(activeJwtToken);
+          }, (error) => {
+            if (error) {
+              console.error('[Zendesk Auth] Authentication error:', error);
+            } else {
+              console.log('[Zendesk Auth] Session upgraded successfully!');
+            }
+          });
+
           // Reset input fields
           loginForm.reset();
 
