@@ -91,28 +91,28 @@ document.addEventListener('DOMContentLoaded', () => {
     statusDiv.className = 'status';
     statusDiv.innerText = 'Logging out...';
 
-    // Terminate Zendesk authenticated session
-    zE('messenger', 'logoutUser')
-      .then(() => {
-        // Clear local memory reference
-        activeJwtToken = null;
+    try {
+      // 1. Terminate Zendesk authenticated session (returns undefined, no .then())
+      zE('messenger', 'logoutUser');
 
-        // Reset input fields completely
-        loginForm.reset();
+      // 2. Clear local memory reference
+      activeJwtToken = null;
 
-        // Restore UI state back to initial state
-        loginSection.style.display = 'block';
-        logoutBtn.style.display = 'none';
+      // 3. Reset input fields completely
+      loginForm.reset();
 
-        statusDiv.className = 'status logged-out';
-        statusDiv.innerText = 'You have logged out. Ready for a new login!';
-        
-        console.log('[Zendesk Auth] Session cleared. UI restored to initial state.');
-      })
-      .catch((error) => {
-        console.error('[Zendesk Logout Error]:', error);
-        statusDiv.className = 'status logged-out';
-        statusDiv.innerText = 'Logout failed. Please try again.';
-      });
+      // 4. Restore UI state back to initial state
+      loginSection.style.display = 'block';
+      logoutBtn.style.display = 'none';
+
+      statusDiv.className = 'status logged-out';
+      statusDiv.innerText = 'You have logged out. Ready for a new login!';
+      
+      console.log('[Zendesk Auth] Session cleared. UI restored to initial state.');
+    } catch (error) {
+      console.error('[Zendesk Logout Error]:', error);
+      statusDiv.className = 'status logged-out';
+      statusDiv.innerText = 'Logout failed. Please try again.';
+    }
   });
 });
