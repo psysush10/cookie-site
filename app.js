@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Configuration: Replace with your live Vercel endpoint URL
-  const AUTH_ENDPOINT = 'https://zedesk-auth-backend.vercel.app/api/token';
+  const AUTH_ENDPOINT = 'https://zendesk-auth-backend.vercel.app/api/token';
 
   // ==========================================
   // 1. LOGIN HANDLER
