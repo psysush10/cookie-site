@@ -3,12 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chennai Cookie Co. | Freshly Baked & Frozen Dough</title>
+  <title>Chennai Cookie Co. | Production Authenticated Chat</title>
   
-  <!-- Paste your Zendesk Web Widget Snippet directly below this line -->
-  <!-- Start of z3n-ravi Zendesk Widget script -->
+   <!-- Start of z3n-ravi Zendesk Widget script -->
 <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=9500f84f-a378-455b-ae18-ffb5ad44a24b"> </script>
 <!-- End of z3n-ravi Zendesk Widget script -->
+
+  <!-- 2. Dynamic JWT Authentication Script -->
+  <script>
+    zE('messenger', 'loginUser', function(callback) {
+      // Fetch fresh JWT from your Vercel Serverless API
+      fetch('https://zendesk-auth-backend.vercel.app/api/token')
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('Failed to fetch JWT from auth server');
+          }
+          return response.json();
+        })
+        .then(function(data) {
+          if (data.token) {
+            // Pass the signed JWT back to Zendesk
+            callback(data.token);
+          } else {
+            console.error('JWT key missing in response:', data);
+          }
+        })
+        .catch(function(error) {
+          console.error('Error authenticating Zendesk user:', error);
+        });
+    });
+  </script>
 
   <style>
     body { font-family: Arial, sans-serif; margin: 0; padding: 40px; background: #fff8f0; color: #4a2e2b; text-align: center; }
@@ -21,7 +45,7 @@
   <p>Freshly baked eggless cookies shipped Pan-India & frozen cookie dough delivered within Chennai!</p>
   <div class="card">
     <h3>Need Help with an Order?</h3>
-    <p>Click the chat button at the bottom right to speak with our support team or check order status.</p>
+    <p>Click the chat button at the bottom right to speak with our support team.</p>
   </div>
 </body>
 </html>
