@@ -50,10 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusDiv.className = 'status logged-out';
         statusDiv.innerText = 'Error connecting to backend.';
       });
-  });
 
- 
-// 2. LOGOUT HANDLER
+    // 2. LOGOUT HANDLER
 logoutBtn.addEventListener('click', () => {
   statusDiv.className = 'status';
   statusDiv.innerText = 'Logging out...';
@@ -79,4 +77,8 @@ logoutBtn.addEventListener('click', () => {
       statusDiv.className = 'status logged-out';
       statusDiv.innerText = 'Logout failed.';
     });
+  });
 });
+
+ 
+
