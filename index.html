@@ -7,6 +7,10 @@
 
   <!-- Dynamic JWT Authentication Script -->
   <script>
+    
+    // Define zE queue wrapper if not already loaded
+    window.zESettings = window.zESettings || {};
+    
     zE('messenger', 'loginUser', function(callback) {
       // Fetch fresh JWT from your Vercel Serverless API
       fetch('https://zendesk-auth-backend.vercel.app/api/token')
