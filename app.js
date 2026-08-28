@@ -52,26 +52,31 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   });
 
-  // 2. LOGOUT HANDLER
-  logoutBtn.addEventListener('click', () => {
-    statusDiv.className = 'status';
-    statusDiv.innerText = 'Logging out...';
+ 
+// 2. LOGOUT HANDLER
+logoutBtn.addEventListener('click', () => {
+  statusDiv.className = 'status';
+  statusDiv.innerText = 'Logging out...';
 
-    // Terminate Zendesk authenticated session
-    zE('messenger', 'logoutUser')
-      .then(() => {
-        activeJwtToken = null;
+  // Terminate Zendesk authenticated session
+  zE('messenger', 'logoutUser')
+    .then(() => {
+      activeJwtToken = null;
 
-        // Update UI (Show form, hide Logout button)
-        loginSection.style.display = 'block';
-        logoutBtn.style.display = 'none';
-        statusDiv.className = 'status logged-out';
-        statusDiv.innerText = 'You have logged out. Chat session reset.';
-      })
-      .catch((error) => {
-        console.error('Error logging out of Zendesk:', error);
-        statusDiv.className = 'status logged-out';
-        statusDiv.innerText = 'Logout failed.';
-      });
-  });
+      // 1. Reset the login form inputs completely
+      loginForm.reset();
+
+      // 2. Restore the UI back to initial state
+      loginSection.style.display = 'block';
+      logoutBtn.style.display = 'none';
+      
+      statusDiv.className = 'status logged-out';
+      statusDiv.innerText = 'You have logged out. Ready for a new login!';
+      console.log('Zendesk session cleared. UI reset to initial state.');
+    })
+    .catch((error) => {
+      console.error('Error logging out of Zendesk:', error);
+      statusDiv.className = 'status logged-out';
+      statusDiv.innerText = 'Logout failed.';
+    });
 });
