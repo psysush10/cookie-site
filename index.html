@@ -11,11 +11,15 @@
   <style>
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff8f0; color: #4a2e2b; padding: 40px; text-align: center; }
     .card { background: white; max-width: 380px; margin: 0 auto; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    input { width: 90%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; }
-    button { background: #8c2d19; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 96%; margin-top: 10px; }
-    button:hover { background: #6b2213; }
+    input { width: 90%; padding: 10px; margin: 8px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    button { color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 90%; margin-top: 10px; }
+    .btn-login { background: #8c2d19; }
+    .btn-login:hover { background: #6b2213; }
+    .btn-logout { background: #555555; display: none; margin: 15px auto 0 auto; }
+    .btn-logout:hover { background: #333333; }
     .status { margin-top: 15px; font-size: 14px; font-weight: bold; }
     .logged-in { color: #2e7d32; }
+    .logged-out { color: #c62828; }
   </style>
 </head>
 <body>
@@ -23,28 +27,36 @@
   <h1>Chennai Cookie Co.</h1>
   <p>Customer Support Portal</p>
 
-  <div class="card" id="login-card">
-    <h3>Sign In to Your Account</h3>
-    <form id="login-form">
-      <input type="text" id="username-input" placeholder="Enter Full Name (e.g. John Doe)" required><br>
-      <input type="password" placeholder="Password" required><br>
-      <button type="submit">Log In</button>
-    </form>
+  <div class="card" id="auth-card">
+    <div id="login-section">
+      <h3>Sign In to Your Account</h3>
+      <form id="login-form">
+        <input type="text" id="username-input" placeholder="Enter Full Name (e.g. Sushanth)" required><br>
+        <input type="password" id="password-input" placeholder="Password" required><br>
+        <button type="submit" class="btn-login">Log In</button>
+      </form>
+    </div>
+
     <div id="status-message" class="status"></div>
+    <button id="logout-btn" class="btn-logout">Log Out</button>
   </div>
 
   <script>
     let activeJwtToken = null;
+    const loginForm = document.getElementById('login-form');
+    const loginSection = document.getElementById('login-section');
+    const logoutBtn = document.getElementById('logout-btn');
+    const statusDiv = document.getElementById('status-message');
 
-    // Handle Form Submission
-    document.getElementById('login-form').addEventListener('submit', function(e) {
+    // 1. LOGIN HANDLER
+    loginForm.addEventListener('submit', function(e) {
       e.preventDefault();
       
       const usernameVal = document.getElementById('username-input').value;
-      const statusDiv = document.getElementById('status-message');
+      statusDiv.className = 'status';
       statusDiv.innerText = 'Authenticating with server...';
 
-      // 1. Send username to Vercel backend to generate custom JWT
+      // Fetch JWT from Vercel backend
       fetch('https://zendesk-auth-backend.vercel.app/api/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -55,24 +67,52 @@
         if (data.token) {
           activeJwtToken = data.token;
           
-          // 2. Register callback with Zendesk Web Widget
+          // Register JWT with Zendesk
           zE('messenger', 'loginUser', function(callback) {
             callback(activeJwtToken);
           });
 
-          // 3. UI Updates
+          // Reset inputs on success
+          loginForm.reset();
+
+          // Update UI (Hide form, show Logout button)
+          loginSection.style.display = 'none';
+          logoutBtn.style.display = 'block';
           statusDiv.className = 'status logged-in';
           statusDiv.innerText = `Logged in as ${data.user.name}! Open the chat widget below.`;
-          
-          console.log('JWT registered with Zendesk for:', data.user.name);
         } else {
+          statusDiv.className = 'status logged-out';
           statusDiv.innerText = 'Authentication failed.';
         }
       })
       .catch(err => {
         console.error(err);
+        statusDiv.className = 'status logged-out';
         statusDiv.innerText = 'Error connecting to backend.';
       });
+    });
+
+    // 2. LOGOUT HANDLER
+    logoutBtn.addEventListener('click', function() {
+      statusDiv.className = 'status';
+      statusDiv.innerText = 'Logging out...';
+
+      // Terminate Zendesk authenticated session
+      zE('messenger', 'logoutUser')
+        .then(function() {
+          activeJwtToken = null;
+
+          // Update UI (Show form, hide Logout button)
+          loginSection.style.display = 'block';
+          logoutBtn.style.display = 'none';
+          statusDiv.className = 'status logged-out';
+          statusDiv.innerText = 'You have logged out. Chat session reset.';
+        })
+        .catch(function(error) {
+          console.error('Error logging out of Zendesk:', error);
+          statusDiv.className = 'status logged-out';
+          statusDiv.innerText = 'Logout failed.';
+        });
     });
   </script>
 
