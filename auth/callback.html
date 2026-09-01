@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopify Authentication</title>
+</head>
+<body>
+  <h1>Shopify Authentication Successful</h1>
+
+  <pre id="result"></pre>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const code = params.get("code");
+    const state = params.get("state");
+    const error = params.get("error");
+    const errorDescription = params.get("error_description");
+
+    document.getElementById("result").textContent =
+      JSON.stringify(
+        {
+          code,
+          state,
+          error,
+          errorDescription
+        },
+        null,
+        2
+      );
+  </script>
+</body>
+</html>
