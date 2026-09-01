@@ -1,14 +1,11 @@
-const SHOPIFY_DOMAIN =
-  "cookie-co.barxyhmr.myshopify.com";
-
 const SHOPIFY_CLIENT_ID =
   "2619e33e3542c2a2e7e1431c6ac7edaf";
 
+const SHOPIFY_AUTHORIZATION_ENDPOINT =
+  "https://shopify.com/authentication/75827249230/oauth/authorize";
+
 const REDIRECT_URI =
   "https://github.yourcookie.site/auth/callback.html";
-
-const DISCOVERY_URL =
-  `https://shopify.com/authentication/75827249230/.well-known/openid-configuration`;
 
 const loginButton =
   document.getElementById("shopify-login");
@@ -18,24 +15,19 @@ const status =
 
 
 function randomString(length = 64) {
-
-  const array =
-    new Uint8Array(length);
+  const array = new Uint8Array(length);
 
   crypto.getRandomValues(array);
 
   return Array.from(array)
-    .map(byte =>
-      byte.toString(16).padStart(2, "0")
-    )
+    .map(byte => byte.toString(16).padStart(2, "0"))
     .join("");
 }
 
 
-async function createCodeChallenge(verifier) {
-
+async function createCodeChallenge(codeVerifier) {
   const data =
-    new TextEncoder().encode(verifier);
+    new TextEncoder().encode(codeVerifier);
 
   const digest =
     await crypto.subtle.digest(
@@ -64,41 +56,32 @@ async function loginWithShopify() {
   try {
 
     status.textContent =
-      "Connecting to Shopify...";
+      "Redirecting to Shopify...";
 
 
-    const discoveryResponse =
-      await fetch(DISCOVERY_URL);
-
-
-    if (!discoveryResponse.ok) {
-
-      throw new Error(
-        `Shopify discovery failed: ${discoveryResponse.status}`
-      );
-
-    }
-
-
-    const config =
-      await discoveryResponse.json();
-
-
+    // Generate OAuth state
     const state =
       randomString(32);
 
+    // Generate OIDC nonce
     const nonce =
       randomString(32);
 
+    // Generate PKCE verifier
     const codeVerifier =
       randomString(64);
 
+    // Generate PKCE challenge
     const codeChallenge =
       await createCodeChallenge(
         codeVerifier
       );
 
 
+    /*
+     * Store these values because we need them
+     * when Shopify redirects back to callback.html.
+     */
     sessionStorage.setItem(
       "shopify_state",
       state
@@ -115,62 +98,76 @@ async function loginWithShopify() {
     );
 
 
-    const url =
+    /*
+     * Build Shopify authorization URL.
+     */
+    const authorizationUrl =
       new URL(
-        config.authorization_endpoint
+        SHOPIFY_AUTHORIZATION_ENDPOINT
       );
 
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "client_id",
       SHOPIFY_CLIENT_ID
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "response_type",
       "code"
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "redirect_uri",
       REDIRECT_URI
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "scope",
       "openid email customer-account-api:full"
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "state",
       state
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "nonce",
       nonce
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "code_challenge",
       codeChallenge
     );
 
-    url.searchParams.set(
+    authorizationUrl.searchParams.set(
       "code_challenge_method",
       "S256"
     );
 
 
+    /*
+     * Top-level browser navigation.
+     *
+     * IMPORTANT:
+     * We are NOT using fetch().
+     * Therefore the previous CORS problem
+     * is completely avoided.
+     */
     window.location.href =
-      url.toString();
+      authorizationUrl.toString();
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      "Shopify login failed:",
+      error
+    );
 
     status.textContent =
-      error.message;
+      "Unable to start Shopify login.";
 
   }
 
