@@ -8,7 +8,7 @@ const REDIRECT_URI =
   "https://github.yourcookie.site/auth/callback.html";
 
 const DISCOVERY_URL =
-  `https://${SHOPIFY_DOMAIN}/.well-known/openid-configuration`;
+  `https://shopify.com/authentication/75827249230/.well-known/openid-configuration`;
 
 const loginButton =
   document.getElementById("shopify-login");
