@@ -3,35 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chennai Cookie Co. | Customer Portal</title>
 
-  <!-- External Stylesheet -->
+  <title>Cookie Co. Support</title>
+
   <link rel="stylesheet" href="style.css">
-
-  <!-- 1. Zendesk Web Widget Snippet (Replace key with your actual key) -->
-  <script id="ze-snippet" src="https://static.zdassets.com/ekr/snippet.js?key=9500f84f-a378-455b-ae18-ffb5ad44a24b"></script>
-
-  <!-- External Application Logic -->
-  <script src="app.js" defer></script>
 </head>
+
 <body>
 
-  <h1>Cookie Co.</h1>
-  <p>Customer Support Portal</p>
+  <main class="container">
 
-  <div class="card" id="auth-card">
-    <div id="login-section">
-      <h3>Sign In to Your Account</h3>
-      <form id="login-form">
-        <input type="text" id="username-input" placeholder="Enter Full Name (e.g. John Doe)" required><br>
-        <input type="password" id="password-input" placeholder="Password" required><br>
-        <button type="submit" class="btn-login">Log In</button>
-      </form>
-    </div>
+    <h1>Cookie Co.</h1>
 
-    <div id="status-message" class="status"></div>
-    <button id="logout-btn" class="btn-logout">Log Out</button>
-  </div>
+    <p>
+      Sign in to access customer support.
+    </p>
+
+    <button id="shopify-login">
+      Sign in with Shopify
+    </button>
+
+    <p id="status"></p>
+
+  </main>
+
+  <script src="app.js"></script>
 
 </body>
 </html>
