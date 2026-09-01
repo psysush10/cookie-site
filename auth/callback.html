@@ -3,14 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shopify Authentication</title>
+  <title>Signing in...</title>
 </head>
 <body>
-  <h1>Shopify Authentication Successful</h1>
-
+  <h1>Signing in...</h1>
   <pre id="result"></pre>
 
   <script>
+    const BACKEND_URL =
+      "https://zendesk-auth-backend.vercel.app/api/shopify/callback";
+
     const params = new URLSearchParams(window.location.search);
 
     const code = params.get("code");
@@ -18,17 +20,76 @@
     const error = params.get("error");
     const errorDescription = params.get("error_description");
 
-    document.getElementById("result").textContent =
-      JSON.stringify(
-        {
+    const codeVerifier =
+      sessionStorage.getItem("shopify_code_verifier");
+
+    const savedState =
+      sessionStorage.getItem("shopify_state");
+
+    const result =
+      document.getElementById("result");
+
+    async function completeLogin() {
+      if (error) {
+        throw new Error(
+          `${error}: ${errorDescription || "Shopify authentication failed"}`
+        );
+      }
+
+      if (!code) {
+        throw new Error("Missing authorization code.");
+      }
+
+      if (!state) {
+        throw new Error("Missing state.");
+      }
+
+      if (!savedState || state !== savedState) {
+        throw new Error("Invalid OAuth state.");
+      }
+
+      if (!codeVerifier) {
+        throw new Error("Missing PKCE code verifier.");
+      }
+
+      const response = await fetch(BACKEND_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
           code,
           state,
-          error,
-          errorDescription
-        },
-        null,
-        2
-      );
+          code_verifier: codeVerifier,
+          redirect_uri:
+            "https://github.yourcookie.site/auth/callback.html"
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data.details
+            ? JSON.stringify(data.details)
+            : data.error || "Backend authentication failed."
+        );
+      }
+
+      result.textContent =
+        "Shopify authentication completed.\n\n" +
+        JSON.stringify(data, null, 2);
+
+      sessionStorage.removeItem("shopify_code_verifier");
+      sessionStorage.removeItem("shopify_state");
+      sessionStorage.removeItem("shopify_nonce");
+    }
+
+    completeLogin().catch(error => {
+      console.error(error);
+      result.textContent =
+        "Login failed:\n\n" + error.message;
+    });
   </script>
 </body>
 </html>
