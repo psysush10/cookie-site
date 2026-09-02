@@ -11,7 +11,7 @@
 
   <script>
     const BACKEND_URL =
-      "https://zendesk-auth-backend.vercel.app/api/shopify/callback";
+      "https://auth.yourcookie.site/api/shopify/callback";
 
     const params = new URLSearchParams(window.location.search);
 
@@ -54,6 +54,7 @@
 
       const response = await fetch(BACKEND_URL, {
         method: "POST",
+        credentials:"include",
         headers: {
           "Content-Type": "application/json"
         },
