@@ -80,6 +80,7 @@
       result.textContent =
         "Shopify authentication completed.\n\n" +
         JSON.stringify(data, null, 2);
+        window.location.href = "/";
 
       sessionStorage.removeItem("shopify_code_verifier");
       sessionStorage.removeItem("shopify_state");

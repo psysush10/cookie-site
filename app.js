@@ -178,3 +178,30 @@ loginButton.addEventListener(
   "click",
   loginWithShopify
 );
+
+const ZENDESK_TOKEN_URL =
+  "https://auth.yourcookie.site/api/zendesk/token";
+
+function authenticateZendesk() {
+  zE("messenger", "loginUser", function (callback) {
+    fetch(ZENDESK_TOKEN_URL, {
+      credentials: "include"
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Unable to obtain Zendesk token.");
+        }
+
+        return response.json();
+      })
+      .then(data => {
+        callback(data.token);
+      })
+      .catch(error => {
+        console.error(
+          "Zendesk authentication failed:",
+          error
+        );
+      });
+  });
+}
